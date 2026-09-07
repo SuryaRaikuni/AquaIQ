@@ -1,0 +1,200 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Auth (NextAuth managed) ─────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?   // hashed, for credentials provider
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  settings      UserSettings?
+  savedProfiles SavedProfile[]
+  devices       SensorDevice[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ─── User Preferences ────────────────────────────────────────────────────────
+
+model UserSettings {
+  userId            String  @id
+  pumpEnabled       Boolean @default(false)
+  moistureThreshold Float   @default(30.0)
+  simMode           Boolean @default(true)   // default: simulated hardware mode
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+model SavedProfile {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // "footprint" | "irrigation" | "scenario"
+  label     String
+  data      Json
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("saved_profiles")
+}
+
+// ─── Regional / Static Data ───────────────────────────────────────────────────
+
+model District {
+  id              String   @id @default(cuid())
+  name            String
+  state           String
+  // geometry stored as GeoJSON string (PostGIS extension optional for MVP)
+  geojson         Json?
+  stressIndex     Float    // 0.0 (low) – 1.0 (critical)
+  groundwaterLevel Float   // meters below ground level
+  rainfallAvg     Float    // mm/year
+  dominantSource  String   // "groundwater" | "surface" | "mixed"
+  dataQuality     String   @default("mock") // "real" | "interpolated" | "mock"
+  updatedAt       DateTime @updatedAt
+
+  devices         SensorDevice[]
+
+  @@map("districts")
+}
+
+model CropWaterRequirement {
+  id            String @id @default(cuid())
+  cropName      String
+  cropType      String // "cereal" | "vegetable" | "fruit" | "cash_crop"
+  season        String // "kharif" | "rabi" | "zaid" | "annual"
+  vwcLitersPerKg Float
+  waterPerAcre  Float  // liters per acre per season
+
+  @@map("crop_water_requirements")
+}
+
+model FoodVwc {
+  id           String @id @default(cuid())
+  foodName     String
+  category     String // "grain" | "vegetable" | "fruit" | "dairy" | "meat" | "beverage"
+  vwcLitersPer100g Float
+  isVegan      Boolean @default(true)
+  isVegetarian Boolean @default(true)
+
+  @@map("food_vwc")
+}
+
+model LegalRule {
+  id            String  @id @default(cuid())
+  state         String
+  useCase       String  // "residential" | "commercial" | "industrial" | "agricultural"
+  sourceType    String  // "borewell" | "tanker" | "municipal" | "surface"
+  ruleText      String  @db.Text
+  lawReference  String
+  rwhMandatory  Boolean @default(false)
+  permitRequired Boolean @default(false)
+  cgwaZone      String? // "safe" | "semi-critical" | "critical" | "over-exploited"
+
+  @@map("legal_rules")
+}
+
+// ─── Live Sensor Data ─────────────────────────────────────────────────────────
+
+model SensorDevice {
+  deviceId     String   @id
+  label        String
+  locationLat  Float?
+  locationLon  Float?
+  districtId   String?
+  ownerId      String?
+  registeredAt DateTime @default(now())
+
+  district District?    @relation(fields: [districtId], references: [id])
+  owner    User?        @relation(fields: [ownerId], references: [id])
+  readings SensorReading[]
+  events   IrrigationEvent[]
+
+  @@map("sensor_devices")
+}
+
+model SensorReading {
+  id                   BigInt   @id @default(autoincrement())
+  deviceId             String
+  soilMoisturePct      Float
+  tankLevelPct         Float
+  flowRateLpm          Float
+  cumulativeVolumeLiters Float
+  pumpActive           Boolean  @default(false)
+  recordedAt           DateTime @default(now())
+
+  device SensorDevice @relation(fields: [deviceId], references: [deviceId])
+
+  @@index([deviceId, recordedAt(sort: Desc)])
+  @@map("sensor_readings")
+}
+
+model IrrigationEvent {
+  id              BigInt   @id @default(autoincrement())
+  deviceId        String
+  triggerType     String   // "auto" | "manual"
+  durationSeconds Int
+  volumeLiters    Float
+  triggeredAt     DateTime @default(now())
+
+  device SensorDevice @relation(fields: [deviceId], references: [deviceId])
+
+  @@map("irrigation_events")
+}
