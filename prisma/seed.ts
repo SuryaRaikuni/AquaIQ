@@ -2,27 +2,60 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// ─── District mock data (15 districts, 4 states) ─────────────────────────────
+// ─── District data (40 districts, 10 states) ─────────────────────────────────
 const districts = [
   // Maharashtra
-  { name: 'Pune',        state: 'Maharashtra', stressIndex: 0.45, groundwaterLevel: 12.3, rainfallAvg: 722,  dominantSource: 'mixed',       dataQuality: 'real' },
-  { name: 'Nashik',      state: 'Maharashtra', stressIndex: 0.61, groundwaterLevel: 18.7, rainfallAvg: 684,  dominantSource: 'groundwater',  dataQuality: 'real' },
-  { name: 'Aurangabad',  state: 'Maharashtra', stressIndex: 0.78, groundwaterLevel: 24.1, rainfallAvg: 498,  dominantSource: 'groundwater',  dataQuality: 'interpolated' },
-  { name: 'Latur',       state: 'Maharashtra', stressIndex: 0.87, groundwaterLevel: 31.5, rainfallAvg: 421,  dominantSource: 'groundwater',  dataQuality: 'real' },
+  { name: 'Pune',               state: 'Maharashtra',    stressIndex: 0.45, groundwaterLevel: 12.3, rainfallAvg: 722,  dominantSource: 'mixed',       dataQuality: 'real' },
+  { name: 'Nashik',             state: 'Maharashtra',    stressIndex: 0.61, groundwaterLevel: 18.7, rainfallAvg: 684,  dominantSource: 'groundwater', dataQuality: 'real' },
+  { name: 'Aurangabad',         state: 'Maharashtra',    stressIndex: 0.78, groundwaterLevel: 24.1, rainfallAvg: 498,  dominantSource: 'groundwater', dataQuality: 'interpolated' },
+  { name: 'Latur',              state: 'Maharashtra',    stressIndex: 0.87, groundwaterLevel: 31.5, rainfallAvg: 421,  dominantSource: 'groundwater', dataQuality: 'real' },
   // Rajasthan
-  { name: 'Jaipur',      state: 'Rajasthan',   stressIndex: 0.82, groundwaterLevel: 38.4, rainfallAvg: 312,  dominantSource: 'groundwater',  dataQuality: 'real' },
-  { name: 'Jodhpur',     state: 'Rajasthan',   stressIndex: 0.94, groundwaterLevel: 52.6, rainfallAvg: 198,  dominantSource: 'groundwater',  dataQuality: 'real' },
-  { name: 'Bikaner',     state: 'Rajasthan',   stressIndex: 0.97, groundwaterLevel: 61.2, rainfallAvg: 145,  dominantSource: 'groundwater',  dataQuality: 'interpolated' },
-  { name: 'Kota',        state: 'Rajasthan',   stressIndex: 0.68, groundwaterLevel: 22.9, rainfallAvg: 527,  dominantSource: 'surface',      dataQuality: 'real' },
+  { name: 'Jaipur',             state: 'Rajasthan',      stressIndex: 0.82, groundwaterLevel: 38.4, rainfallAvg: 312,  dominantSource: 'groundwater', dataQuality: 'real' },
+  { name: 'Jodhpur',            state: 'Rajasthan',      stressIndex: 0.94, groundwaterLevel: 52.6, rainfallAvg: 198,  dominantSource: 'groundwater', dataQuality: 'real' },
+  { name: 'Bikaner',            state: 'Rajasthan',      stressIndex: 0.97, groundwaterLevel: 61.2, rainfallAvg: 145,  dominantSource: 'groundwater', dataQuality: 'interpolated' },
+  { name: 'Kota',               state: 'Rajasthan',      stressIndex: 0.68, groundwaterLevel: 22.9, rainfallAvg: 527,  dominantSource: 'surface',     dataQuality: 'real' },
   // Tamil Nadu
-  { name: 'Chennai',     state: 'Tamil Nadu',  stressIndex: 0.76, groundwaterLevel: 28.3, rainfallAvg: 1400, dominantSource: 'mixed',        dataQuality: 'real' },
-  { name: 'Coimbatore',  state: 'Tamil Nadu',  stressIndex: 0.52, groundwaterLevel: 15.1, rainfallAvg: 718,  dominantSource: 'surface',      dataQuality: 'real' },
-  { name: 'Madurai',     state: 'Tamil Nadu',  stressIndex: 0.65, groundwaterLevel: 19.8, rainfallAvg: 864,  dominantSource: 'groundwater',  dataQuality: 'interpolated' },
+  { name: 'Chennai',            state: 'Tamil Nadu',     stressIndex: 0.76, groundwaterLevel: 28.3, rainfallAvg: 1400, dominantSource: 'mixed',       dataQuality: 'real' },
+  { name: 'Coimbatore',         state: 'Tamil Nadu',     stressIndex: 0.52, groundwaterLevel: 15.1, rainfallAvg: 718,  dominantSource: 'surface',     dataQuality: 'real' },
+  { name: 'Madurai',            state: 'Tamil Nadu',     stressIndex: 0.65, groundwaterLevel: 19.8, rainfallAvg: 864,  dominantSource: 'groundwater', dataQuality: 'interpolated' },
   // Karnataka
-  { name: 'Bengaluru',   state: 'Karnataka',   stressIndex: 0.71, groundwaterLevel: 22.4, rainfallAvg: 982,  dominantSource: 'mixed',        dataQuality: 'real' },
-  { name: 'Mysuru',      state: 'Karnataka',   stressIndex: 0.38, groundwaterLevel:  9.2, rainfallAvg: 1102, dominantSource: 'surface',      dataQuality: 'real' },
-  { name: 'Kalaburagi',  state: 'Karnataka',   stressIndex: 0.80, groundwaterLevel: 27.6, rainfallAvg: 541,  dominantSource: 'groundwater',  dataQuality: 'interpolated' },
-  { name: 'Tumkur',      state: 'Karnataka',   stressIndex: 0.57, groundwaterLevel: 16.3, rainfallAvg: 820,  dominantSource: 'mixed',        dataQuality: 'real' },
+  { name: 'Bengaluru',          state: 'Karnataka',      stressIndex: 0.71, groundwaterLevel: 22.4, rainfallAvg: 982,  dominantSource: 'mixed',       dataQuality: 'real' },
+  { name: 'Mysuru',             state: 'Karnataka',      stressIndex: 0.38, groundwaterLevel:  9.2, rainfallAvg: 1102, dominantSource: 'surface',     dataQuality: 'real' },
+  { name: 'Kalaburagi',         state: 'Karnataka',      stressIndex: 0.80, groundwaterLevel: 27.6, rainfallAvg: 541,  dominantSource: 'groundwater', dataQuality: 'interpolated' },
+  { name: 'Tumkur',             state: 'Karnataka',      stressIndex: 0.57, groundwaterLevel: 16.3, rainfallAvg: 820,  dominantSource: 'mixed',       dataQuality: 'real' },
+  // Gujarat
+  { name: 'Ahmedabad',          state: 'Gujarat',        stressIndex: 0.72, groundwaterLevel: 28.5, rainfallAvg: 782,  dominantSource: 'mixed',       dataQuality: 'interpolated' },
+  { name: 'Surat',              state: 'Gujarat',        stressIndex: 0.44, groundwaterLevel: 12.1, rainfallAvg: 932,  dominantSource: 'surface',     dataQuality: 'interpolated' },
+  { name: 'Vadodara',           state: 'Gujarat',        stressIndex: 0.58, groundwaterLevel: 18.4, rainfallAvg: 871,  dominantSource: 'mixed',       dataQuality: 'interpolated' },
+  { name: 'Rajkot',             state: 'Gujarat',        stressIndex: 0.83, groundwaterLevel: 34.2, rainfallAvg: 420,  dominantSource: 'groundwater', dataQuality: 'interpolated' },
+  { name: 'Kutch',              state: 'Gujarat',        stressIndex: 0.95, groundwaterLevel: 56.8, rainfallAvg: 210,  dominantSource: 'groundwater', dataQuality: 'mock' },
+  // Uttar Pradesh
+  { name: 'Lucknow',            state: 'Uttar Pradesh',  stressIndex: 0.65, groundwaterLevel: 22.3, rainfallAvg: 895,  dominantSource: 'mixed',       dataQuality: 'interpolated' },
+  { name: 'Kanpur',             state: 'Uttar Pradesh',  stressIndex: 0.74, groundwaterLevel: 27.8, rainfallAvg: 841,  dominantSource: 'groundwater', dataQuality: 'interpolated' },
+  { name: 'Agra',               state: 'Uttar Pradesh',  stressIndex: 0.79, groundwaterLevel: 31.2, rainfallAvg: 665,  dominantSource: 'groundwater', dataQuality: 'interpolated' },
+  { name: 'Varanasi',           state: 'Uttar Pradesh',  stressIndex: 0.61, groundwaterLevel: 18.6, rainfallAvg: 980,  dominantSource: 'mixed',       dataQuality: 'mock' },
+  { name: 'Meerut',             state: 'Uttar Pradesh',  stressIndex: 0.69, groundwaterLevel: 24.5, rainfallAvg: 788,  dominantSource: 'groundwater', dataQuality: 'mock' },
+  // Andhra Pradesh
+  { name: 'Vijayawada',         state: 'Andhra Pradesh', stressIndex: 0.51, groundwaterLevel: 14.8, rainfallAvg: 1020, dominantSource: 'surface',     dataQuality: 'interpolated' },
+  { name: 'Visakhapatnam',      state: 'Andhra Pradesh', stressIndex: 0.42, groundwaterLevel: 11.2, rainfallAvg: 1050, dominantSource: 'surface',     dataQuality: 'real' },
+  { name: 'Guntur',             state: 'Andhra Pradesh', stressIndex: 0.68, groundwaterLevel: 22.7, rainfallAvg: 880,  dominantSource: 'groundwater', dataQuality: 'interpolated' },
+  { name: 'Kurnool',            state: 'Andhra Pradesh', stressIndex: 0.84, groundwaterLevel: 35.4, rainfallAvg: 552,  dominantSource: 'groundwater', dataQuality: 'interpolated' },
+  { name: 'Anantapur',          state: 'Andhra Pradesh', stressIndex: 0.91, groundwaterLevel: 41.3, rainfallAvg: 374,  dominantSource: 'groundwater', dataQuality: 'mock' },
+  // West Bengal
+  { name: 'Kolkata',            state: 'West Bengal',    stressIndex: 0.35, groundwaterLevel:  8.4, rainfallAvg: 1670, dominantSource: 'surface',     dataQuality: 'real' },
+  { name: 'Howrah',             state: 'West Bengal',    stressIndex: 0.37, groundwaterLevel:  9.1, rainfallAvg: 1620, dominantSource: 'surface',     dataQuality: 'interpolated' },
+  { name: 'Asansol',            state: 'West Bengal',    stressIndex: 0.54, groundwaterLevel: 16.8, rainfallAvg: 1380, dominantSource: 'mixed',       dataQuality: 'interpolated' },
+  { name: 'Siliguri',           state: 'West Bengal',    stressIndex: 0.22, groundwaterLevel:  7.3, rainfallAvg: 2400, dominantSource: 'surface',     dataQuality: 'mock' },
+  // Kerala
+  { name: 'Thiruvananthapuram', state: 'Kerala',         stressIndex: 0.30, groundwaterLevel:  6.8, rainfallAvg: 1750, dominantSource: 'surface',     dataQuality: 'real' },
+  { name: 'Kochi',              state: 'Kerala',         stressIndex: 0.19, groundwaterLevel:  5.2, rainfallAvg: 3200, dominantSource: 'surface',     dataQuality: 'real' },
+  { name: 'Kozhikode',          state: 'Kerala',         stressIndex: 0.24, groundwaterLevel:  7.1, rainfallAvg: 2900, dominantSource: 'surface',     dataQuality: 'interpolated' },
+  { name: 'Thrissur',           state: 'Kerala',         stressIndex: 0.36, groundwaterLevel:  9.8, rainfallAvg: 2100, dominantSource: 'mixed',       dataQuality: 'interpolated' },
+  // Haryana
+  { name: 'Gurugram',           state: 'Haryana',        stressIndex: 0.81, groundwaterLevel: 32.1, rainfallAvg: 715,  dominantSource: 'groundwater', dataQuality: 'real' },
+  { name: 'Faridabad',          state: 'Haryana',        stressIndex: 0.76, groundwaterLevel: 28.9, rainfallAvg: 688,  dominantSource: 'groundwater', dataQuality: 'interpolated' },
+  { name: 'Hisar',              state: 'Haryana',        stressIndex: 0.92, groundwaterLevel: 45.3, rainfallAvg: 390,  dominantSource: 'groundwater', dataQuality: 'real' },
+  { name: 'Rohtak',             state: 'Haryana',        stressIndex: 0.86, groundwaterLevel: 38.7, rainfallAvg: 480,  dominantSource: 'groundwater', dataQuality: 'interpolated' },
 ];
 
 // ─── Food VWC (Virtual Water Content per 100g) ────────────────────────────────

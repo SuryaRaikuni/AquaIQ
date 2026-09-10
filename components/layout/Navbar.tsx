@@ -13,6 +13,7 @@ const NAV_LINKS = [
   { href: '/irrigation', label: 'Irrigation'    },
   { href: '/legal',      label: 'Legal'         },
   { href: '/simulator',  label: 'Simulator'     },
+  { href: '/profile',    label: 'My Profile'    },
 ];
 
 export function Navbar() {

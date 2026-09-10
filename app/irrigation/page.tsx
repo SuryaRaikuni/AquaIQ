@@ -6,6 +6,7 @@ import { formatLiters, formatINR } from '@/lib/utils';
 import { Loader2, Droplets, Info } from 'lucide-react';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from 'chart.js';
+import { SaveProfileButton } from '@/components/ui/SaveProfileButton';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
 
@@ -194,6 +195,8 @@ export default function IrrigationPage() {
               ))}
             </div>
           </div>
+
+          <SaveProfileButton type="irrigation" data={result} />
         </div>
       )}
     </div>

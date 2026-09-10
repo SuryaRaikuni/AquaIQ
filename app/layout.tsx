@@ -11,6 +11,11 @@ export const metadata: Metadata = {
   description:
     'Real-time water stress monitoring, footprint calculation, irrigation advice, legal compliance and policy simulation for India.',
   keywords: ['water', 'IoT', 'irrigation', 'India', 'sustainability'],
+  openGraph: {
+    title:       'AquaIQ — Water Intelligence Platform',
+    description: 'Real-time IoT water stress monitoring and advisory platform for India.',
+    type:        'website',
+  },
 };
 
 export default function RootLayout({
@@ -20,6 +25,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Preconnect for faster Leaflet tile loading */}
+        <link rel="preconnect" href="https://tile.openstreetmap.org" />
+        <link rel="dns-prefetch" href="https://tile.openstreetmap.org" />
+        <link rel="preconnect" href="https://unpkg.com" />
+      </head>
       <body className={inter.className}>
         <Providers>
           <div className="min-h-screen flex flex-col">

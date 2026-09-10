@@ -8,6 +8,7 @@ import {
 } from 'chart.js';
 import { formatLiters } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
+import { SaveProfileButton } from '@/components/ui/SaveProfileButton';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
@@ -254,6 +255,8 @@ export default function CalculatorPage() {
               </ul>
             </div>
           )}
+
+          <SaveProfileButton type="footprint" data={result} />
         </div>
       )}
     </div>
