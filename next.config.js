@@ -1,7 +1,20 @@
 /** @type {import('next').NextConfig} */
+
+// On Vercel, VERCEL_URL is auto-injected (e.g. "aquaiq.vercel.app").
+// next-auth requires a full HTTPS URL for NEXTAUTH_URL.
+// We derive it here so users never need to set it manually in Vercel env vars.
+const NEXTAUTH_URL =
+  process.env.NEXTAUTH_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+
 const nextConfig = {
   compress:        true,
   poweredByHeader: false,
+
+  // Expose NEXTAUTH_URL to server-side code so next-auth can build callback URLs
+  env: {
+    NEXTAUTH_URL,
+  },
 
   images: {
     remotePatterns: [
@@ -16,7 +29,7 @@ const nextConfig = {
     return config;
   },
 
-  // Preconnect headers for OpenStreetMap tiles + improve TTFB
+  // Security + preconnect response headers
   async headers() {
     return [
       {
